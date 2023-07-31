@@ -4,6 +4,7 @@ import os
 
 API_URL = os.environ['API_URL']
 API_TOKEN = os.environ['API_TOKEN']
+
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def query(payload):
@@ -20,11 +21,10 @@ output = query({
 	},
 })
 
-print(output)
 
-def main_handler(event, context):
-	response = requests.post(API_URL, headers=headers, json=payload)
+def lambda_handler(event,contex):
 	return {
         "statusCode": 200,
-        "body": response.json()
+        'headers': {'Content-Type': 'application/json'},
+        "body": json.dumps(output)
     }
