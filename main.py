@@ -20,25 +20,44 @@ def query(payload):
 
 
 def lambda_handler(event,contex):
-    operation = event['operation'];
+    if 'body' in event:
+        body = json.load(event)
+        if 'operation' in body:
+            operation = body['operation'];
 
-    if operation == 'query':
-        output = query({
-            "inputs": {
-                "query": event["payload"]["query"],
-                "table": table,
+            if operation == 'query':
+                output = query({
+                    "inputs": {
+                        "query": event["payload"]["query"],
+                        "table": table,
+                    }
+                })
+
+                return {
+                    "statusCode": 200,
+                    'headers': {'Content-Type': 'application/json'},
+                    "body": json.dumps(output)
+                }
+            else:
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({
+                        "message": "The query was malformed."
+                    })
+                }
+        else:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({
+                    "message": "Missing operation key",
+                    "output": json.dumps(event)
+                })
             }
-        })
-
-        return {
-            "statusCode": 200,
-            'headers': {'Content-Type': 'application/json'},
-            "body": json.dumps(output)
-        }
     else:
         return {
             "statusCode": 400,
             "body": json.dumps({
-                "message": "The query was malformed."
+                "message": "Missing operation key",
+                "output": json.dumps(event)
             })
         }
